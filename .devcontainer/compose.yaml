@@ -1,0 +1,40 @@
+name: fall-detection-robot
+
+services:
+  ros:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    init: true
+    # Linux: host namespace. Docker Desktop >=4.34: opt-in TCP/UDP forwarding.
+    # These are not equivalent; see the networking caveats in README.md.
+    network_mode: host
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ROS_DISTRO: jazzy
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+      FASTRTPS_DEFAULT_PROFILES_FILE: /home/ros/.ros/fastdds.xml
+      FASTDDS_DEFAULT_PROFILES_FILE: /home/ros/.ros/fastdds.xml
+      PYTHONUNBUFFERED: "1"
+    mem_limit: ${DEV_MEMORY_LIMIT:-8g}
+    shm_size: 256m
+    working_dir: /workspaces/fall-detection-robot
+    command: ["sleep", "infinity"]
+    volumes:
+      - type: bind
+        source: ..
+        target: /workspaces/fall-detection-robot
+      - ros-build:/workspaces/fall-detection-robot/ros_ws/build
+      - ros-install:/workspaces/fall-detection-robot/ros_ws/install
+      - ros-log:/workspaces/fall-detection-robot/ros_ws/log
+      - ros-state:/home/ros/.ros
+      - pip-cache:/home/ros/.cache/pip
+
+volumes:
+  ros-build:
+  ros-install:
+  ros-log:
+  ros-state:
+  pip-cache:

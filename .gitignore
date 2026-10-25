@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.devcontainer/generated/
+ros_ws/build/
+ros_ws/install/
+ros_ws/log/
+data/*
+!data/.gitkeep
+models/*
+!models/.gitkeep

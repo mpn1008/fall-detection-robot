@@ -1,0 +1,11 @@
+services:
+  ros:
+    environment:
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${NVIDIA_GPU_ID:-0}"]
+              capabilities: [gpu]

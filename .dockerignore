@@ -1,0 +1,10 @@
+.git
+.env
+**/__pycache__
+**/.venv
+ros_ws/build
+ros_ws/install
+ros_ws/log
+data
+models
+.devcontainer/generated

@@ -1,0 +1,23 @@
+{
+  "name": "Fall detection — ROS 2 Jazzy (CPU)",
+  "dockerComposeFile": "compose.yaml",
+  "service": "ros",
+  "workspaceFolder": "/workspaces/fall-detection-robot",
+  "remoteUser": "ros",
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "bash .devcontainer/scripts/setup-workspace.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-vscode.cpptools",
+        "redhat.vscode-xml"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/venv/bin/python",
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  }
+}
