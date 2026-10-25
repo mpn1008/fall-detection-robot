@@ -35,8 +35,10 @@ def make_profile(peers, address):
     )
     rtps = ET.SubElement(participant, "rtps")
     builtin = ET.SubElement(rtps, "builtin")
-    # Unicast-only discovery. Probe participant IDs 0..119 on each peer.
-    ET.SubElement(builtin, "metatrafficMulticastLocatorList")
+    # An explicit unicast locator suppresses the default multicast locator.
+    # Do not emit an empty metatrafficMulticastLocatorList: Fast DDS 2.x rejects
+    # empty locator elements and may silently fall back to its default profile.
+    # Probe participant IDs 0..119 on each peer.
     discovery = ET.SubElement(builtin, "initialPeersList")
     # Local nodes also need to discover one another without multicast.
     for peer in dict.fromkeys([address, *peers]):

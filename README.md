@@ -10,9 +10,11 @@ Linux dev container: ROS 2 Jazzy application nodes
                              ↑ optional aligned OAK-D depth
 ```
 
-This change provisions the environment, not the detection nodes, trained model,
-TurtleBot drivers, or an Isaac Sim scene. The real robot's ROS distribution and
-exact OAK-D variant still need to be checked before selecting those drivers.
+The repository includes the development environment and a small
+[TurtleBot3 motion test](docs/turtlebot3-motion.md) with a Windows Isaac Sim scene
+script. It does not yet include the detection nodes, trained model, or real
+TurtleBot drivers. The real robot's ROS distribution and exact OAK-D variant
+still need to be checked before selecting those drivers.
 
 ## Prerequisites
 
@@ -124,6 +126,28 @@ $env:PATH = "$isaac\exts\isaacsim.ros2.core\jazzy\lib;$env:PATH"
 Set the path only once in a fresh shell; use the matching library path for your
 release. The container generates its own profile at startup in
 `/home/ros/.ros/fastdds.xml`. Windows and Linux profiles are separate files.
+
+**If Fast DDS reports `Node 'metatrafficMulticastLocatorList' without content`:**
+an older generator emitted an empty element that Fast DDS 2.x rejects. The current
+generator omits it; a nonempty `metatrafficUnicastLocatorList` already disables
+default multicast discovery. Do not work around this by unsetting the profile:
+that can silently switch back to shared memory/multicast defaults.
+
+Regenerate the Linux profile inside the container using its existing addresses:
+
+```bash
+python3 .devcontainer/scripts/make_dds_profile.py \
+  --peers "$ROS_DDS_PEERS" --address "$ROS_DDS_ADDRESS" \
+  --output "$FASTRTPS_DEFAULT_PROFILES_FILE"
+ros2 daemon stop
+```
+
+Regenerate the Windows profile with the reverse IP pairing shown below (or the
+localhost defaults only for the Desktop localhost setup), then **fully close and
+relaunch Isaac Sim**. Stop and restart any running ROS commands: existing DDS
+participants do not reload XML profiles. If upgrading an existing container,
+**rebuild its image once** to update `/usr/local/bin/make-dds-profile`; otherwise
+an older image can regenerate the rejected XML at its next startup.
 
 ### Routed alternative: Docker Engine inside WSL2
 
@@ -328,7 +352,11 @@ The DDS generator has standard-library tests, runnable on Windows or Linux:
 python3 -B .devcontainer/scripts/test_dds_profile.py
 ```
 
-These tests check generation/validation behavior, not a live DDS connection.
+These tests check generation/validation behavior. When ROS `rclpy` is available,
+they also create a loopback DDS participant in domain `42` and assert that the
+native Fast DDS parser accepts the profile without falling back to defaults.
+The native checks are skipped on ordinary Windows/Python installations without ROS.
+They do not test Windows ↔ Linux data delivery.
 Actual image build, GPU access and Windows ↔ Linux communication must be tested
 on the intended Docker host.
 

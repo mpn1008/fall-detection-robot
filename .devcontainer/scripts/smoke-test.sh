@@ -32,6 +32,11 @@ if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
     cat "$log_directory/talker.log" "$log_directory/listener.log"
     exit "$status"
 fi
+if grep -q 'XMLPARSER' "$log_directory/talker.log" "$log_directory/listener.log"; then
+    cat "$log_directory/talker.log" "$log_directory/listener.log"
+    echo 'FAIL: Fast DDS rejected the XML profile; default-profile delivery is not a valid test' >&2
+    exit 1
+fi
 if ! grep -q 'I heard' "$log_directory/listener.log"; then
     cat "$log_directory/talker.log" "$log_directory/listener.log"
     echo 'FAIL: no ROS message received through the UDP profile' >&2
